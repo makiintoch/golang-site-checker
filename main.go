@@ -1,11 +1,18 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
 )
+
+type Config struct {
+	CodeTime  int `json:"getCodeTime"`
+	EmailTime int `json:"sendEmailTime"`
+}
 
 func getStatusCode() int {
 	resp, err := http.Get("https://google.com/")
@@ -17,9 +24,9 @@ func getStatusCode() int {
 	return resp.StatusCode
 }
 
-func startPolling() {
+func startPolling(cfg Config) {
 	for {
-		time.Sleep(1 * time.Minute)
+		time.Sleep(time.Duration(cfg.CodeTime) * time.Minute)
 
 		code := getStatusCode()
 
@@ -32,5 +39,15 @@ func startPolling() {
 }
 
 func main() {
-	defer startPolling()
+	configFile, err := ioutil.ReadFile("./config.json")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var cfg Config
+
+	json.Unmarshal(configFile, &cfg)
+
+	startPolling(cfg)
 }
