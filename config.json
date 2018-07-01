@@ -1,4 +1,8 @@
 {
     "getCodeTime": 1,
-    "sendEmailTime": 1
+    "sendEmailTime": 2,
+    "urls": [
+        {"url": "https://golang.org/"},
+        {"url": "https://google.com/"}
+    ]
 }

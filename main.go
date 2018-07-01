@@ -10,12 +10,22 @@ import (
 )
 
 type Config struct {
-	CodeTime  int `json:"getCodeTime"`
-	EmailTime int `json:"sendEmailTime"`
+	CodeTime  int   `json:"getCodeTime"`
+	EmailTime int   `json:"sendEmailTime"`
+	Urls      []Url `json:"urls"`
 }
 
-func getStatusCode() int {
-	resp, err := http.Get("https://google.com/")
+type Url struct {
+	UrlName string `json:"url"`
+}
+
+type Email struct {
+	From string
+	To   string
+}
+
+func getStatusCode(url string) int {
+	resp, err := http.Get(url)
 
 	if err != nil {
 		log.Fatal(err)
@@ -28,12 +38,16 @@ func startPolling(cfg Config) {
 	for {
 		time.Sleep(time.Duration(cfg.CodeTime) * time.Minute)
 
-		code := getStatusCode()
+		urls := cfg.Urls
 
-		if code < 200 || code > 299 {
-			fmt.Println("Argh! Broken: ", code)
-		} else {
-			fmt.Println("All ok: ", code)
+		for _, url := range urls {
+			code := getStatusCode(url.UrlName)
+
+			if code < 200 || code > 299 {
+				fmt.Println("Argh! Broken: ", code)
+			} else {
+				fmt.Println("All ok: ", code)
+			}
 		}
 	}
 }
